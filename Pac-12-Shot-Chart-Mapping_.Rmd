@@ -1,0 +1,258 @@
+---
+title: "Pac-12-Shot-Chart-Mapping"
+author: '@jonmichaelstroh'
+date: "11/2/2021"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, 
+                      echo = TRUE, dpi = 300, cache.lazy = FALSE,
+                      tidy = "styler")
+```
+
+```{r load libraries}
+library(tidyverse)
+library(dplyr)
+library(gamezoneR)
+library(extrafont)
+```
+
+```{r Get Player Information}
+playerName <- "Evan Mobley"
+teamName <- "USC"
+season <- '2020-21'
+```
+
+**** DO NOT EDIT BELOW THIS POINT ****
+
+#### Conferences
+
+```{r PAc 12 Team Schedule}
+oregon_schedule <-  gamezoneR::get_team_schedule("Oregon", season = season)
+oregonst_schedule <-  gamezoneR::get_team_schedule("Oregon State", season = season)
+utah_schedule <-  gamezoneR::get_team_schedule("Utah", season = season)
+washington_schedule <-  gamezoneR::get_team_schedule("Washington", season = season)
+ucla_schedule <-  gamezoneR::get_team_schedule("UCLA", season = season)
+usc_schedule <-  gamezoneR::get_team_schedule("USC", season = season)
+arizonast_schedule <-  gamezoneR::get_team_schedule("Arizona State", season = season)
+washingtonst_schedule <-  gamezoneR::get_team_schedule("Washington State", season = season)
+stanford_schedule <-  gamezoneR::get_team_schedule("Stanford", season = season)
+cal_schedule <-  gamezoneR::get_team_schedule("California", season = season)
+arizona_schedule <-  gamezoneR::get_team_schedule("Arizona", season = season)
+colorado_schedule <-  gamezoneR::get_team_schedule("Colorado", season = season)
+
+pac12_schedule <- multiFull <- merge(merge(merge(merge(merge(merge(merge(merge(merge(merge(merge(
+  oregon_schedule,
+  oregonst_schedule, all = TRUE),
+  utah_schedule, all = TRUE),
+  washington_schedule, all = TRUE),
+  ucla_schedule, all = TRUE),
+  usc_schedule, all = TRUE),
+  arizonast_schedule, all = TRUE),
+  washingtonst_schedule, all = TRUE),
+  stanford_schedule, all = TRUE),
+  cal_schedule, all = TRUE),
+  arizona_schedule, all = TRUE),
+  colorado_schedule, all = TRUE)
+```
+
+
+```{r Shot data for Pac 12}
+pac12_shot_data <- purrr::map_df(pac12_schedule$game_id, 
+                          gamezoneR::gamezone_cbb_pbp, sub_parse = F) %>% filter(!is.na(loc_x))
+```
+
+```{r Check Quadrants}
+pac12_shot_data  <- pac12_shot_data  %>% mutate(shot_quadrant = factor(if_else(loc_x >= 21 & loc_x <= 25 & ((loc_y - 5.25)^2 + (25 - loc_x)^2 <= 16), "Q1", if_else(loc_x > 25 & loc_x <= 29 & ((loc_y - 5.25)^2 + (loc_x - 25)^2 <= 16), "Q1", if_else(loc_x >= 19 & loc_x <= 31 & loc_y <= 19, "Q2", if_else(loc_x <= 12.5 & three_pt == TRUE, "Q5", if_else(loc_x > 12.5 & loc_x < 37.5 & three_pt == TRUE, "Q6", if_else(loc_x >= 37.5 & three_pt == TRUE, "Q7", if_else(loc_x <= 25, "Q3", if_else(loc_x > 25, "Q4", "NA"))))))))))
+```
+
+#### Quadrant 1
+
+```{r Shooting Percentages Q1}
+pac12_shot_data_quadrant1 <- pac12_shot_data %>% filter(shot_quadrant == "Q1")
+
+pac12_shot_data_quadrant1_players <- as.data.frame.matrix(table(pac12_shot_data_quadrant1$shooter, pac12_shot_data_quadrant1$shot_outcome)) %>% filter(made + missed >= 15) %>% mutate(shooting_percent = (made/(made + missed)) * 100)
+```
+
+```{r Shooting Percentages Q1 Distribution}
+quadrant1_distribution_20 <- round(quantile(pac12_shot_data_quadrant1_players$shooting_percent, c(.2)), digits = 3)
+
+quadrant1_distribution_40 <- round(quantile(pac12_shot_data_quadrant1_players$shooting_percent, c(.4)), digits = 3)
+
+quadrant1_distribution_60 <- round(quantile(pac12_shot_data_quadrant1_players$shooting_percent, c(.6)), digits = 3)
+
+quadrant1_distribution_80 <- round(quantile(pac12_shot_data_quadrant1_players$shooting_percent, c(.8)), digits = 3)
+```
+
+#### Quadrant 2
+
+```{r Shooting Percentages Q2}
+pac12_shot_data_quadrant2 <- pac12_shot_data %>% filter(shot_quadrant == "Q2")
+
+pac12_shot_data_quadrant2_players <- as.data.frame.matrix(table(pac12_shot_data_quadrant2$shooter, pac12_shot_data_quadrant2$shot_outcome)) %>% filter(made + missed >= 5) %>% mutate(shooting_percent = (made/(made + missed)) * 100)
+```
+
+```{r Shooting Percentages Q2 Distribution}
+quadrant2_distribution_20 <- round(quantile(pac12_shot_data_quadrant2_players$shooting_percent, c(.2)), digits = 3)
+
+quadrant2_distribution_40 <- round(quantile(pac12_shot_data_quadrant2_players$shooting_percent, c(.4)), digits = 3)
+
+quadrant2_distribution_60 <- round(quantile(pac12_shot_data_quadrant2_players$shooting_percent, c(.6)), digits = 3)
+
+quadrant2_distribution_80 <- round(quantile(pac12_shot_data_quadrant2_players$shooting_percent, c(.8)), digits = 3)
+```
+
+#### Quadrant 3
+
+```{r Shooting Percentages Q3}
+pac12_shot_data_quadrant3 <- pac12_shot_data %>% filter(shot_quadrant == "Q3")
+
+pac12_shot_data_quadrant3_players <- as.data.frame.matrix(table(pac12_shot_data_quadrant3$shooter, pac12_shot_data_quadrant3$shot_outcome)) %>% filter(made + missed >= 5) %>% mutate(shooting_percent = (made/(made + missed)) * 100)
+```
+
+```{r Shooting Percentages Q3 Distribution}
+quadrant3_distribution_20 <- round(quantile(pac12_shot_data_quadrant3_players$shooting_percent, c(.2)), digits = 3)
+
+quadrant3_distribution_40 <- round(quantile(pac12_shot_data_quadrant3_players$shooting_percent, c(.4)), digits = 3)
+
+quadrant3_distribution_60 <- round(quantile(pac12_shot_data_quadrant3_players$shooting_percent, c(.6)), digits = 3)
+
+quadrant3_distribution_80 <- round(quantile(pac12_shot_data_quadrant3_players$shooting_percent, c(.8)), digits = 3)
+```
+
+#### Quadrant 4
+
+```{r Shooting Percentages Q4}
+pac12_shot_data_quadrant4 <- pac12_shot_data %>% filter(shot_quadrant == "Q4")
+
+pac12_shot_data_quadrant4_players <- as.data.frame.matrix(table(pac12_shot_data_quadrant4$shooter, pac12_shot_data_quadrant4$shot_outcome)) %>% filter(made + missed >= 5) %>% mutate(shooting_percent = (made/(made + missed)) * 100)
+```
+
+```{r Shooting Percentages Q4 Distribution}
+quadrant4_distribution_20 <- round(quantile(pac12_shot_data_quadrant4_players$shooting_percent, c(.2)), digits = 3)
+
+quadrant4_distribution_40 <- round(quantile(pac12_shot_data_quadrant4_players$shooting_percent, c(.4)), digits = 3)
+
+quadrant4_distribution_60 <- round(quantile(pac12_shot_data_quadrant4_players$shooting_percent, c(.6)), digits = 3)
+
+quadrant4_distribution_80 <- round(quantile(pac12_shot_data_quadrant4_players$shooting_percent, c(.8)), digits = 3)
+```
+
+#### Quadrant 5
+
+```{r Shooting Percentages Q5}
+pac12_shot_data_quadrant5 <- pac12_shot_data %>% filter(shot_quadrant == "Q5")
+
+pac12_shot_data_quadrant5_players <- as.data.frame.matrix(table(pac12_shot_data_quadrant5$shooter, pac12_shot_data_quadrant5$shot_outcome)) %>% filter(made + missed >= 5) %>% mutate(shooting_percent = (made/(made + missed)) * 100)
+
+view(pac12_shot_data_quadrant7 %>% filter(shooter == 'Buddy Boeheim'))
+```
+
+```{r Shooting Percentages Q5 Distribution}
+quadrant5_distribution_20 <- round(quantile(pac12_shot_data_quadrant5_players$shooting_percent, c(.2)), digits = 3)
+
+quadrant5_distribution_40 <- round(quantile(pac12_shot_data_quadrant5_players$shooting_percent, c(.4)), digits = 3)
+
+quadrant5_distribution_60 <- round(quantile(pac12_shot_data_quadrant5_players$shooting_percent, c(.6)), digits = 3)
+
+quadrant5_distribution_80 <- round(quantile(pac12_shot_data_quadrant5_players$shooting_percent, c(.8)), digits = 3)
+```
+
+#### Quadrant 6
+
+```{r Shooting Percentages Q6}
+pac12_shot_data_quadrant6 <- pac12_shot_data %>% filter(shot_quadrant == "Q6")
+
+pac12_shot_data_quadrant6_players <- as.data.frame.matrix(table(pac12_shot_data_quadrant6$shooter, pac12_shot_data_quadrant6$shot_outcome)) %>% filter(made + missed >= 5) %>% mutate(shooting_percent = (made/(made + missed)) * 100)
+```
+
+```{r Shooting Percentages Q6 Distribution}
+quadrant6_distribution_20 <- round(quantile(pac12_shot_data_quadrant6_players$shooting_percent, c(.2)), digits = 3)
+
+quadrant6_distribution_40 <- round(quantile(pac12_shot_data_quadrant6_players$shooting_percent, c(.4)), digits = 3)
+
+quadrant6_distribution_60 <- round(quantile(pac12_shot_data_quadrant6_players$shooting_percent, c(.6)), digits = 3)
+
+quadrant6_distribution_80 <- round(quantile(pac12_shot_data_quadrant6_players$shooting_percent, c(.8)), digits = 3)
+```
+
+#### Quadrant 7
+
+```{r Shooting Percentages Q7}
+pac12_shot_data_quadrant7 <- pac12_shot_data %>% filter(shot_quadrant == "Q7")
+
+pac12_shot_data_quadrant7_players <- as.data.frame.matrix(table(pac12_shot_data_quadrant7$shooter, pac12_shot_data_quadrant7$shot_outcome)) %>% filter(made + missed >= 5) %>% mutate(shooting_percent = (made/(made + missed)) * 100)
+```
+
+```{r Shooting Percentages Q7 Distribution}
+quadrant7_distribution_20 <- round(quantile(pac12_shot_data_quadrant7_players$shooting_percent, c(.2)), digits = 3)
+
+quadrant7_distribution_40 <- round(quantile(pac12_shot_data_quadrant7_players$shooting_percent, c(.4)), digits = 3)
+
+quadrant7_distribution_60 <- round(quantile(pac12_shot_data_quadrant7_players$shooting_percent, c(.6)), digits = 3)
+
+quadrant7_distribution_80 <- round(quantile(pac12_shot_data_quadrant7_players$shooting_percent, c(.8)), digits = 3)
+```
+
+## FOR NEW PLAYER START HERE:
+
+#### Get Team Schedule
+
+```{r team schedule}
+team_schedule <-  gamezoneR::get_team_schedule(teamName, season = season)
+```
+
+#### Filter Player's Shots
+
+```{r get player's shots}
+player_shots <- purrr::map_df(team_schedule$game_id, 
+                          gamezoneR::gamezone_cbb_pbp, sub_parse = F) %>% filter(shooter == playerName)
+```
+
+#### Determine Quadrant
+
+```{r Check Quadrants}
+player_shots <- player_shots %>% mutate(shot_quadrant = factor(if_else(loc_x >= 21 & loc_x <= 25 & ((loc_y - 5.25)^2 + (25 - loc_x)^2 <= 16), "Q1", if_else(loc_x > 25 & loc_x <= 29 & ((loc_y - 5.25)^2 + (loc_x - 25)^2 <= 16), "Q1", if_else(loc_x >= 19 & loc_x <= 31 & loc_y <= 19, "Q2", if_else(loc_x <= 12.5 & three_pt == TRUE, "Q5", if_else(loc_x > 12.5 & loc_x < 37.5 & three_pt == TRUE, "Q6", if_else(loc_x >= 37.5 & three_pt == TRUE, "Q7", if_else(loc_x <= 25, "Q3", if_else(loc_x > 25, "Q4", "NA"))))))))))
+```
+
+#### The Number of Shots for each Quadrant
+
+```{r Total by Quadrant}
+player_shots_quadrants <- table(player_shots$shot_quadrant, player_shots$shot_outcome)
+
+player_shots_quadrants
+```
+
+```{r Percentages by Quadrant}
+player_shots_quadrants_percentages <- as.data.frame.matrix(prop.table(player_shots_quadrants, 1) * 100)
+
+player_shots_quadrants_percentages <- player_shots_quadrants_percentages %>% mutate(Quadrant = 1:nrow(player_shots_quadrants_percentages))
+
+player_shots_quadrants_percentages <- player_shots_quadrants_percentages %>% mutate(color = if_else(Quadrant == 1,if_else(made < quadrant1_distribution_20, "#1a1aff", if_else(made < quadrant1_distribution_40, "#0099ff", if_else(made < quadrant1_distribution_60, "#737373", if_else(made < quadrant1_distribution_80, "#ff8080", "#ff0000")))), if_else(Quadrant == 2,if_else(made < quadrant2_distribution_20, "#1a1aff", if_else(made < quadrant2_distribution_40, "#0099ff", if_else(made < quadrant2_distribution_60, "#737373", if_else(made < quadrant2_distribution_80, "#ff8080", "#ff0000")))), if_else(Quadrant == 3,if_else(made < quadrant3_distribution_20, "#1a1aff", if_else(made < quadrant3_distribution_40, "#0099ff", if_else(made < quadrant3_distribution_60, "#737373", if_else(made < quadrant3_distribution_80, "#ff8080", "#ff0000")))), if_else(Quadrant == 4,if_else(made < quadrant4_distribution_20, "#1a1aff", if_else(made < quadrant4_distribution_40, "#0099ff", if_else(made < quadrant4_distribution_60, "#737373", if_else(made < quadrant4_distribution_80, "#ff8080", "#ff0000")))), if_else(Quadrant == 5,if_else(made < quadrant5_distribution_20, "#1a1aff", if_else(made < quadrant5_distribution_40, "#0099ff", if_else(made < quadrant5_distribution_60, "#737373", if_else(made < quadrant5_distribution_80, "#ff8080", "#ff0000")))), if_else(Quadrant == 6,if_else(made < quadrant6_distribution_20, "#1a1aff", if_else(made < quadrant6_distribution_40, "#0099ff", if_else(made < quadrant6_distribution_60, "#737373", if_else(made < quadrant6_distribution_80, "#ff8080", "#ff0000")))), if_else(Quadrant == 7,if_else(made < quadrant7_distribution_20, "#1a1aff", if_else(made < quadrant7_distribution_40, "#0099ff", if_else(made < quadrant7_distribution_60, "#737373", if_else(made < quadrant7_distribution_80, "#ff8080", "#ff0000")))), "NA"))))))))
+
+
+
+player_shots_quadrants_percentages <- player_shots_quadrants_percentages %>% mutate(made = round(made), digits = 0) %>% mutate(made = paste0(made,"%"))
+
+player_shots_quadrants_percentages
+```
+
+```{r Randomize Close Shots}
+set.seed(2)
+player_shots <- player_shots %>% mutate(loc_x = if_else(shot_desc == "Layup Shot" & play_id < 250, loc_x + runif(1, -2, 2), if_else(shot_desc == "Layup Shot" & play_id < 500, loc_x + runif(1, -2, 2), if_else(shot_desc == "Layup Shot" & play_id < 750, loc_x + runif(1, -2, 2), if_else(shot_desc == "Layup Shot", loc_x + runif(1, -2, 2), loc_x)))))
+
+player_shots <- player_shots %>% mutate(loc_y = if_else(shot_desc == "Layup Shot" & play_id < 250, loc_y + runif(1, -1, 2), if_else(shot_desc == "Layup Shot" & play_id < 500, loc_y + runif(1, -1, 2), if_else(shot_desc == "Layup Shot" & play_id < 750, loc_y + runif(1, -1, 2), if_else(shot_desc == "Layup Shot", loc_y + runif(1, -1, 2), loc_y)))))
+```
+
+#### Shot Chart
+
+```{r Player's Shot Chart}
+gamezoneR::base_court +
+geom_point(data = player_shots, aes(loc_x, loc_y, color = shot_outcome), alpha = 0.6) + scale_color_manual(breaks = c("made", "missed"), values=c('#990000', "black")) + geom_text(data = player_shots_quadrants_percentages, x = 22.8, y = 5.2, fontface = "bold", color = player_shots_quadrants_percentages$color, size = 3, aes(label = ifelse(Quadrant == 1, as.character(made),""))) + geom_text(data = player_shots_quadrants_percentages, x = 29, y = 18, fontface = "bold", color = player_shots_quadrants_percentages$color, size = 3, aes(label = ifelse(Quadrant == 2, as.character(made),""))) + geom_text(data = player_shots_quadrants_percentages, x = 15, y = 12, fontface = "bold", color = player_shots_quadrants_percentages$color, size = 3, aes(label = ifelse(Quadrant == 3, as.character(made),""))) + geom_text(data = player_shots_quadrants_percentages, x = 35, y = 10, fontface = "bold", color = player_shots_quadrants_percentages$color, size = 3, aes(label = ifelse(Quadrant == 4, as.character(made),""))) + geom_text(data = player_shots_quadrants_percentages, x = 8, y = 24, fontface = "bold", color = player_shots_quadrants_percentages$color, size = 3, aes(label = ifelse(Quadrant == 5, as.character(made),""))) + geom_text(data = player_shots_quadrants_percentages, x = 28, y = 31, fontface = "bold", color = player_shots_quadrants_percentages$color, size = 3, aes(label = ifelse(Quadrant == 6, as.character(made),"")))  + geom_text(data = player_shots_quadrants_percentages, x = 43, y = 24, fontface = "bold", color = player_shots_quadrants_percentages$color, size = 3, aes(label = ifelse(Quadrant == 7, as.character(made),""))) + theme(plot.background = element_rect(fill = '#FFC72C'), text=element_text(size=16,  family="Myanmar Text"), legend.spacing.x = grid::unit(0, 'cm'),  plot.title = element_text(face = "bold", hjust = 0.5, size = 25/.pt, margin = margin(0, 0, 5, 0)), legend.title = element_text(size = 20/.pt, face = "bold"), 
+legend.text = element_text(size = 22/.pt), legend.margin = margin(0, 0, 0, 0),
+legend.position = 'bottom', legend.box.margin = margin(-35, 0, 0, 0),  plot.margin = margin(5, 0, 5, 0)) + 
+labs(title = paste(playerName, ':', season, "Season"), color = "Outcome", caption = "Creator: @statsquid | Data: @gamezoneR")
+```
