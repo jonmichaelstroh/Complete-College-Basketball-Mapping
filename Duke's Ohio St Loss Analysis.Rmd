@@ -133,7 +133,7 @@ ggplot(duke_shots_ohio_st, aes(loc_x, loc_y)) + geom_emoji(aes(image = if_else(s
                        color = 'blue', size = 2)
 ```
 
-OK haha...that's enough practice for one day.
+OK haha...that's enough practice for one day.  Not Kirk Goldsberry just yet.
 
 
 
